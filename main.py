@@ -5,8 +5,6 @@ import threading
 import time
 import requests
 from collections import deque
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 import logging
 
 app = Flask(__name__)
@@ -36,18 +34,10 @@ model = genai.GenerativeModel(
     generation_config=generation_config,
 )
 
-# রেট লিমিটার ইনিশিয়ালাইজ করা
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]  # প্রয়োজন অনুযায়ী সীমা সামঞ্জস্য করুন
-)
-
 # চ্যাট সেশনগুলি একটি ডিকশনারিতে সংরক্ষণ করা
 chat_sessions = {}
 
 @app.route('/ask', methods=['GET'])
-@limiter.limit("10 per minute")  # প্রতি মিনিটে ১০টি অনুরোধ সীমিত করুন
 def ask():
     query = request.args.get('q')
     user_id = request.args.get('id')
@@ -81,7 +71,7 @@ def ping():
     return jsonify({"status": "alive"})
 
 def keep_alive():
-    url = "https://your-app-name.onrender.com/ping"  # আপনার অ্যাপের URL দিয়ে প্রতিস্থাপন করুন
+    url = "https://symmetrical-journey-6at4.onrender.com/ping"  # আপনার অ্যাপের URL দিয়ে প্রতিস্থাপন করুন
     while True:
         time.sleep(600)  # প্রতি ১০ মিনিটে পিং করা
         try:
